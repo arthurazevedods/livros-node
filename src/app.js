@@ -1,32 +1,30 @@
 import express from "express";
+import conectaNaDatabase from "./config/dbConnect.js";
+import livro from "./models/Livro.js"
+
+const conexao = await conectaNaDatabase();
+
+conexao.on("error", (erro) =>{
+    console.error('erro de conexão', erro);
+});
+
+conexao.once("open", () =>{
+    console.log("Conexão com o BD feito com sucesso");
+})
 
 const app = express();
 app.use(express.json());//middleware
 
-const livros = [
-    {
-        id: 1,
-        titulo: "O senhor dos Anéis"
-    },
-    {
-        id: 2,
-        titulo: "O Hobbit"
-    }
-];
-
-function buscaLivro(id) {
-    return livros.findIndex(livro =>{
-        return livro.id === Number(id);
-    });
-}
 
 //quem vai cuidar das rotas é o express
 app.get("/", (req, res) => {
     res.status(200).send("Curso de Node.js");
 });
 
-app.get("/livros", (req, res) => {
-    res.status(200).json(livros);
+app.get("/livros", async(req, res) => {
+    //chamar o modelo
+    const listaLivros = await livro.find({});
+    res.status(200).json(listaLivros);
 });
 
 //:sinaliza que o id vai ser variável
@@ -53,3 +51,5 @@ app.delete("/livros/:id", (req,res) =>{
 });
 
 export default app;
+
+//mongodb+srv://arthurazevedods:<password>@cluster0.vjss1c4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
